@@ -1,0 +1,84 @@
+Body {
+  background-color: black;
+  font-family: 'Arial', sans-serif;
+  color: white;
+  text-align: center;
+}
+
+hr {
+  border-color: brown;
+}
+
+.btn-elegant {
+  background-image: linear-gradient(135deg, #FF6B6B 0%, #FFAA55 100%);
+  border: none;
+  color: white;
+  padding: 15px 30px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 18px;
+  font-family: 'Arial', sans-serif;
+  margin: 10px;
+  cursor: pointer;
+  border-radius: 50px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-elegant:hover {
+  background-image: linear-gradient(135deg, #FFAA55 0%, #FF6B6B 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-elegant:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-elegant::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%) rotate(45deg);
+  transition: all 0.5s ease;
+  opacity: 0;
+}
+
+.btn-elegant:hover::after {
+  opacity: 1;
+}
+
+@media screen and (max-width: 768px) {
+  .btn-elegant {
+    padding: 12px 24px;
+    font-size: 16px;
+    margin: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-elegant:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .btn-elegant {
+    padding: 10px 20px;
+    font-size: 14px;
+    width: 90%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
