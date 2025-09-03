@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles/style.css"/>
+  <title>Cardápio Digital</title>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>
+        <strong>
+          👩‍🍳°•Jacantins°•👨‍🍳
+        </strong>
+      </h1>
+      <hr>
+    </header>
+    
+    <main>
+      <button class="btn-elegant" onclick='iniciarCardapio()'>🍝Abrir Cardápio🍢</button>
+      <button class="btn-elegant" onclick='verFilaAtual()'>🕒 Ver Fila</button>
+      <a href="https://www.google.com"><button class="btn-elegant">⛔Sair</button></a>
+    </main>
+  </div>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCGg6A_HNAJ0qsB4gzYJgQK9E3ztISO-FM",
+      authDomain: "cardapio-1d6f1.firebaseapp.com",
+      projectId: "cardapio-1d6f1",
+      storageBucket: "cardapio-1d6f1.firebasestorage.app",
+      messagingSenderId: "841755407374",
+      appId: "1:841755407374:web:115d312d354bb6e77df85f",
+      measurementId: "G-CYH903V9W1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    
+    const menu = {
+      aperitivos: [
+        { nome: "Batata frita", preco: 15.00 },
+        { nome: "Pastel de queijo", preco: 12.50 },
+        { nome: "Calabresa acebolada", preco: 25.00 },
+        { nome: "Bolinho de aipim com carne seca", preco: 22.00 },
+        { nome: "Torresmo com limão", preco: 18.00 },
+        { nome: "Dadinho de tapioca", preco: 28.00 }
+      ],
+      pratosPrincipais: [
+        { nome: "Risoto de cogumelos", preco: 45.00 },
+        { nome: "Salmão com purê de batata doce", preco: 60.00 },
+        { nome: "Strogonoff de carne", preco: 55.00 },
+        { nome: "Lasanha à bolonhesa", preco: 48.00 },
+        { nome: "Filé de frango grelhado com arroz e feijão", preco: 42.00 },
+        { nome: "Picanha na chapa com mandioca frita", preco: 75.00 },
+        { nome: "Tilápia ao molho de camarão", preco: 68.00 },
+        { nome: "Feijoada completa", preco: 50.00 },
+        { nome: "Espaguete ao molho pesto com tomate cereja", preco: 40.00 },
+        { nome: "Costela suína com barbecue e batatas rústicas", preco: 65.00 }
+      ],
+      sobremesas: [
+        { nome: "Bolo de chocolate com sorvete", preco: 20.00 },
+        { nome: "Pudim de leite condensado", preco: 18.00 },
+        { nome: "Mousse de maracujá", preco: 15.00 },
+        { nome: "Brownie com calda de chocolate", preco: 22.00 },
+        { nome: "Pavê de biscoito", preco: 17.00 }
+      ],
+      bebidas: [
+        { nome: "Refrigerante lata", preco: 7.00 },
+        { nome: "Suco natural de laranja", preco: 9.00 },
+        { nome: "Água sem gás", preco: 5.00 },
+        { nome: "Cerveja Pilsen", preco: 10.00 },
+        { nome: "Refrigerante 2L", preco: 12.00 },
+        { nome: "Suco natural de abacaxi com hortelã", preco: 11.00 },
+        { nome: "Chopp", preco: 12.50 }
+      ]
+    };
+    
+    const pedido = [];
+
+    window.iniciarCardapio = function() {
+      const idade = prompt("Qual a sua idade?");
+      
+      if (idade === null || isNaN(idade) || !Number.isInteger(Number(idade))) {
+        alert("Idade inválida. Por favor, digite um número.");
+        return;
+      }
+      
+      const idadeNumerica = parseInt(idade, 10);
+      
+      if (idadeNumerica < 18) {
+        alert("Você deve ter 18 anos ou mais para acessar o menu de bebidas alcoólicas.");
+        menu.bebidas = menu.bebidas.filter(item => item.nome !== "Cerveja Pilsen" && item.nome !== "Chopp");
+      }
+
+      let continuar = true;
+      while (continuar) {
+        const opcao = prompt(
+          "Bem-vindo(a) ao nosso restaurante!\n\n" +
+          "Escolha uma opção:\n" +
+          "1 - Aperitivos\n" +
+          "2 - Pratos Principais\n" +
+          "3 - Sobremesas\n" +
+          "4 - Bebidas\n" +
+          "5 - Ver Pedido e Pagamento\n" +
+          "6 - Sair\n"
+        );
+        
+        if (opcao === null) {
+          continuar = false;
+          alert("Obrigado por sua visita!");
+          continue;
+        }
+
+        switch (opcao) {
+          case '1':
+            mostrarCategoria('aperitivos');
+            break;
+          case '2':
+            mostrarCategoria('pratosPrincipais');
+            break;
+          case '3':
+            mostrarCategoria('sobremesas');
+            break;
+          case '4':
+            mostrarCategoria('bebidas');
+            break;
+          case '5':
+            verPagamento();
+            break;
+          case '6':
+            continuar = false;
+            alert("Obrigado por sua visita!");
+            break;
+          default:
+            alert("Opção inválida. Por favor, escolha um número de 1 a 6.");
+        }
+      }
+    }
+
+    function mostrarCategoria(categoria) {
+      let mensagem = `--- ${categoria.toUpperCase()} ---\n\n`;
+      menu[categoria].forEach((item, index) => {
+        mensagem += `${index + 1} - ${item.nome} (R$ ${item.preco.toFixed(2).replace(".", ",")})\n`;
+      });
+
+      const escolha = prompt(mensagem + "\nEscolha o número do item que deseja adicionar ao pedido ou digite '0' para voltar.");
+      
+      if (escolha === null) return;
+
+      const indice = parseInt(escolha, 10) - 1;
+      if (indice >= 0 && indice < menu[categoria].length) {
+        pedido.push(menu[categoria][indice]);
+        alert(`${menu[categoria][indice].nome} foi adicionado ao seu pedido!`);
+      } else if (escolha !== '0') {
+        alert("Escolha inválida. Voltando ao menu principal.");
+      }
+    }
+
+    function verPagamento() {
+      if (pedido.length === 0) {
+        alert("Seu pedido está vazio.");
+        return;
+      }
+
+      let total = 0;
+      let mensagemPedido = "--- SEU PEDIDO ---\n\n";
+      pedido.forEach(item => {
+        mensagemPedido += `- ${item.nome} (R$ ${item.preco.toFixed(2).replace(".", ",")})\n`;
+        total += item.preco;
+      });
+
+      mensagemPedido += `\nTotal: R$ ${total.toFixed(2).replace(".", ",")}`;
+      
+      const confirmar = confirm(mensagemPedido + "\n\nConfirmar e pagar?");
+      
+      if (confirmar) {
+        const novoPedido = {
+          items: pedido.map(item => item.nome),
+          total: total,
+          timestamp: Date.now()
+        };
+        
+        const novaEntrada = push(ref(database, 'fila'), novoPedido);
+        const chaveDoPedido = novaEntrada.key;
+        alert("Pagamento processado com sucesso! Obrigado pela preferência. Aguarde a sua vez na fila.");
+        pedido.length = 0;
+      } else {
+        alert("Pagamento cancelado. Seu pedido ainda está salvo.");
+      }
+    }
+
+    window.verFilaAtual = function() {
+      const filaRef = ref(database, 'fila');
+      onValue(filaRef, (snapshot) => {
+        let mensagemFila = "--- FILA ATUAL ---\n\n";
+        let contador = 0;
+        let pedidos = [];
+        snapshot.forEach((childSnapshot) => {
+          contador++;
+          pedidos.push(`Pedido #${contador}`);
+        });
+
+        if (pedidos.length === 0) {
+          alert("Não há pedidos na fila no momento.");
+        } else {
+          mensagemFila += pedidos.join("\n");
+          alert(mensagemFila);
+        }
+        
+      }, {
+        onlyOnce: true
+      });
+    }
+
+  </script>
+</body>
+</html>
