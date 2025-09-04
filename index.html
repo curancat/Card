@@ -25,8 +25,7 @@
   </div>
   
   <script type="module">
-          
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+          import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getDatabase, ref, push, get } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 const firebaseConfig = {
@@ -212,10 +211,13 @@ window.verFilaAtual = function() {
       snapshot.forEach((childSnapshot) => {
         contador++;
         const pedido = childSnapshot.val();
-        
-        let listaItens = pedido.items.map(item => `- ${item.nome}`).join('\n');
 
-        mensagemFila += `Pedido #${contador} - Cliente: ${pedido.cliente}\n`;
+        let listaItens = "Nenhum item encontrado";
+        if (pedido.items && Array.isArray(pedido.items)) {
+           listaItens = pedido.items.map(item => `- ${item.nome}`).join('\n');
+        }
+
+        mensagemFila += `Pedido #${contador} - Cliente: ${pedido.cliente || 'Anônimo'}\n`;
         mensagemFila += `${listaItens}\n\n`;
       });
       alert(mensagemFila);
@@ -226,7 +228,7 @@ window.verFilaAtual = function() {
     console.error(error);
     alert("Ocorreu um erro ao buscar a fila. Por favor, tente novamente.");
   });
-          }
+}
   </script>
 </body>
 </html>
